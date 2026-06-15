@@ -5,13 +5,17 @@
 <title>Ticker Timer Simulation MM</title>
 <style>
 body{font-family:Arial,sans-serif;text-align:center;background:#eef;padding:20px}
-canvas{border:1px solid #333;background:white}
+canvas{
+    border:1px solid #333;
+    background:white;
+    touch-action:none;
+}
 button{padding:8px 12px;margin:5px}
 </style>
 </head>
 <body>
 <h1>จำลองเครื่องเคาะสัญญาณเวลา</h1>
-<p>กดเมาส์ค้างแล้วลากแถบกระดาษทางขวา</p>
+<p>ลากเมาส์หรือใช้นิ้วลากบนแถบกระดาษ</p>
 <p>แสดงระยะระหว่างจุดเป็นมิลลิเมตร (กำหนด 1 px = 0.5 mm)</p>
 
 <canvas id="cv" width="1000" height="280"></canvas><br>
@@ -82,7 +86,46 @@ c.addEventListener('mousemove',e=>{
    lastStamp=now;
  }
 });
+c.addEventListener('touchstart',e=>{
 
+    dragging=true;
+
+    e.preventDefault();
+});
+
+c.addEventListener('touchend',e=>{
+
+    dragging=false;
+
+    e.preventDefault();
+});
+
+c.addEventListener('touchmove',e=>{
+
+    if(!dragging)return;
+
+    e.preventDefault();
+
+    const r=
+    c.getBoundingClientRect();
+
+    tapeX=
+    e.touches[0].clientX
+    - r.left;
+
+    const now=
+    performance.now();
+
+    if(now-lastStamp>20){
+
+        dots.push(
+            tapeX
+        );
+
+        lastStamp=
+        now;
+    }
+});
 function resetSim(){
  dots=[];
  tapeX=100;
