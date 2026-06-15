@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Ticker Timer Simulation MM</title>
+<style>
+body{font-family:Arial,sans-serif;text-align:center;background:#eef;padding:20px}
+canvas{border:1px solid #333;background:white}
+button{padding:8px 12px;margin:5px}
+</style>
+</head>
+<body>
+<h1>จำลองเครื่องเคาะสัญญาณเวลา</h1>
+<p>กดเมาส์ค้างแล้วลากแถบกระดาษทางขวา</p>
+<p>แสดงระยะระหว่างจุดเป็นมิลลิเมตร (กำหนด 1 px = 0.5 mm)</p>
+
+<canvas id="cv" width="1000" height="280"></canvas><br>
+<button onclick="resetSim()">รีเซ็ต</button>
+
+<script>
+const c=document.getElementById('cv');
+const ctx=c.getContext('2d');
+
+let dragging=false;
+let tapeX=100;
+let dots=[];
+let lastStamp=0;
+const mmPerPixel=0.5;
+
+function draw(){
+ ctx.clearRect(0,0,c.width,c.height);
+
+ ctx.fillStyle='#ddd';
+ ctx.fillRect(100,100,800,40);
+
+ ctx.fillStyle='black';
+ ctx.font='16px Arial';
+ ctx.fillText('เครื่องเคาะสัญญาณเวลา',20,70);
+ ctx.fillRect(70,70,10,90);
+
+ for(let x=100;x<=900;x+=20){
+   ctx.beginPath();
+   ctx.moveTo(x,95);
+   ctx.lineTo(x,100);
+   ctx.stroke();
+ }
+
+ ctx.fillStyle='red';
+ dots.forEach(x=>{
+   ctx.beginPath();
+   ctx.arc(x,120,3,0,Math.PI*2);
+   ctx.fill();
+ });
+
+ ctx.fillStyle='blue';
+ ctx.font='12px Arial';
+
+ for(let i=1;i<dots.length;i++){
+   let dx=dots[i]-dots[i-1];
+   let mm=dx*mmPerPixel;
+   let mid=(dots[i]+dots[i-1])/2;
+   ctx.fillText(mm.toFixed(1)+' mm',mid-18,90);
+ }
+
+ requestAnimationFrame(draw);
+}
+
+c.addEventListener('mousedown',()=>dragging=true);
+c.addEventListener('mouseup',()=>dragging=false);
+c.addEventListener('mouseleave',()=>dragging=false);
+
+c.addEventListener('mousemove',e=>{
+ if(!dragging)return;
+
+ const r=c.getBoundingClientRect();
+ tapeX=e.clientX-r.left;
+
+ const now=performance.now();
+
+ if(now-lastStamp>20){
+   dots.push(tapeX);
+   lastStamp=now;
+ }
+});
+
+function resetSim(){
+ dots=[];
+ tapeX=100;
+}
+
+draw();
+</script>
+</body>
+</html>
